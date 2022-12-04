@@ -1,0 +1,5 @@
+2022.12.01: Created github repo/ lcd screen msg receive animation programmed
+
+2022.12.03: made lcd screen send animation
+
+2022.12.04: Made wiring diagram in tinkercad

@@ -3,14 +3,6 @@
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-unsigned long currentTime = 0;
-unsigned long startTime = 0;
-
-boolean m1 = false;
-boolean m2 = false;
-boolean m3 = false;
-boolean m4 = false;
-
 void setup()
 {
   Serial.begin(9600);
@@ -39,11 +31,37 @@ void receivingDataAnimation() {
   lcd.setCursor(0, 1);
   lcd.print(">>> >>> >>> >>>");
   delay(250);
-
 }
+
+void sendingDataAnimation() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("         Sending");
+  delay(250);
+
+  lcd.setCursor(0, 1);
+  lcd.print("            <<<");
+  delay(250);
+
+  lcd.setCursor(0, 1);
+  lcd.print("        <<< <<<");
+  delay(250);
+
+  lcd.setCursor(0, 1);
+  lcd.print("    <<< <<< <<<");
+  delay(250);
+
+  lcd.setCursor(0, 1);
+  lcd.print("<<< <<< <<< <<<");
+  delay(250);
+}
+
 void loop()
 {
   Serial.println("Got msg");
   receivingDataAnimation();
+  delay(500);
+  sendingDataAnimation();
+  delay(500);
   Serial.println("Loop");
 }

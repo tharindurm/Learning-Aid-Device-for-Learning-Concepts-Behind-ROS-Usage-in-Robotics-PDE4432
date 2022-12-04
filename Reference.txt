@@ -1,0 +1,3 @@
+type casting: https://forum.arduino.cc/t/cast-float-to-int-unexpected-results/510240/3
+
+maximum current draw: https://electronics.stackexchange.com/questions/67092/how-much-current-can-i-draw-from-the-arduinos-pins
