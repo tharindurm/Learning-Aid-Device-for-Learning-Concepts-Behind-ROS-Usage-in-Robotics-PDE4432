@@ -20,7 +20,7 @@ void loop() {
 
   //Controlling speed (0 = off and 255 = max speed):
   analogWrite(9, 100); //ENA pin
-  analogWrite(10, 0); //ENB pin
+  analogWrite(10, 150); //ENB pin
 
   //Controlling spin direction of motors:
   digitalWrite(motor1pin1, HIGH);

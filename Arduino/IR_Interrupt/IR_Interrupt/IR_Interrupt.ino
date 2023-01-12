@@ -24,7 +24,7 @@ void setup() {
 }
 
 void loop() {
-  analogWrite(10, 0); //ENB pin
+  analogWrite(9, 70); //ENB pin
   digitalWrite(motor2pin1, HIGH);
   digitalWrite(motor2pin2, LOW);
 
