@@ -1,40 +1,41 @@
 #include <Wire.h> //LCD
 #include <LiquidCrystal_I2C.h> //LCD
 #include <ros.h> //rosserial
-#include <std_msgs/UInt32.h> //rosserial
+#include <std_msgs/Int16.h> //rosserial
 #include <std_msgs/String.h> //rosserial
 #include <Servo.h>
 
-void receivingDataAnimation(std_msgs::String& data);
-void updateTaskNumber(std_msgs::UInt32& data);
-void servoSweep();
+void updateTaskNumber(std_msgs::Int16& data);
+void updateServoAngle(std_msgs::Int16& data);
+void updateDisplayNumber(std_msgs::Int16& data);
 
 ros::NodeHandle nh;
 
+
 //Topic to receive task number
-ros::Subscriber<std_msgs::UInt32> task("taskTopic", &updateTaskNumber );
-
-//Topic to receive msgs to be displayed during tasks
-ros::Subscriber<std_msgs::String> lcd_message_number("lcd_msg", &receivingDataAnimation);
-
-
-
-//LCD screen instance
-LiquidCrystal_I2C LCD(0x27, 16, 2);
-
-//True when device is used in a task
-boolean deviceBusy  = false;
-
-//This variable holds the task number to be executed. 0 is no tasks
+ros::Subscriber<std_msgs::Int16> task("taskNumber", &updateTaskNumber );
 int currentTask = 0;
 
+// Task 1 : Numbers from 0 to 9
+ros::Subscriber<std_msgs::Int16> lcd_message_number("lcd_msg", &updateDisplayNumber);
+int displayNumber = 0;
 
+// Task 2 :
+ros::Subscriber<std_msgs::Int16> servo_angle("servo_angle", &updateServoAngle);
+Servo myservo;
+int servoAngle = 0;
 
-//Wheel PID controller variables
+// Task 3 :
+int trigPin = 9;
+int echoPin = 10;
+float duration, distance;
+
+//Task 4 :
+ros::Subscriber<std_msgs::Int16> wheelSpeed("wheel_speed", &updateServoAngle);
 bool motor_running = false;
 int motor_pin = 9;
 int pwm_pulse = 0;
-float set_speed = 0;
+int set_speed = 0;
 float current_speed = 0;
 float error_speed = 0;
 float error_speed_previous = 0;
@@ -44,11 +45,11 @@ int ki = 1;
 int kd = 1;
 
 
-//Servo motor variables
-Servo myservo;
-int pos = 0; 
+//LCD screen instance
+LiquidCrystal_I2C LCD(0x27, 16, 2);
 
-
+//True when device is used in a task
+boolean deviceBusy  = false;
 
 
 
@@ -62,14 +63,20 @@ void setup() {
 
   //Initializing Servo
   myservo.attach(10);
-  
+
   pinMode(13, OUTPUT);
-  
+
+  //Ultrasonic Sensor Pins
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
   //Initializing ROS Node Handle
   nh.initNode();
-  nh.subscribe(lcd_message);
   nh.subscribe(task);
-
+  nh.subscribe(lcd_message_number);
+  nh.subscribe(servo_angle);
+  nh.subscribe(wheelSpeed);
+  
   //Standby LCD message
   LCD.clear();
   LCD.setCursor(0, 0);
@@ -80,30 +87,27 @@ void setup() {
 }
 
 void loop() {
-  if (!deviceBusy) {
-    deviceReadyMessage();
-  }
-  
-  readSerialMsg();
-  
+
   if (currentTask == 1) {
-    digitalWrite(13,LOW);
+    digitalWrite(13, LOW);
+    receivingData();
   }
 
   if (currentTask == 2) {
-    digitalWrite(13,HIGH);
+    digitalWrite(13, HIGH);
+    receivingData();
     servoSweep();
   }
 
   if (currentTask == 3) {
-
+    ultrasonicDistance();
   }
 
   if (currentTask == 4) {
 
   }
 
-  
+
   nh.spinOnce();
   delay(50);
 }
@@ -118,44 +122,54 @@ void deviceReadyMessage() {
   delay(500);
 }
 
-void updateTaskNumber(std_msgs::UInt32& data){
-  currentTask = data.data;  
+void updateTaskNumber(std_msgs::Int16& data) {
+  currentTask = data.data;
 
+}
+
+void updateServoAngle(std_msgs::Int16& data) {
+  servoAngle = data.data;
+}
+
+void updateDisplayNumber(std_msgs::Int16& data) {
+  displayNumber = data.data;
 }
 
 void servoSweep() {
-  for (pos = 0; pos <= 180; pos += 1) {
-    myservo.write(pos);              
-    delay(15);                        
-  }
-  for (pos = 180; pos >= 0; pos -= 1) {
-    myservo.write(pos);             
-    delay(15);
-  }
+  myservo.write(servoAngle);
+  delay(15);
 }
 
-void receivingDataAnimation(std_msgs::String& data) {
+void ultrasonicDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
 
-  analogWrite(9,200);
-  delay(50);
-  analogWrite(9,0);
-  
-  LCD.clear();  
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration*.0343)/2;
+  LCD.clear();
+  LCD.setCursor(0, 0);
+  LCD.print("Distance");
+  LCD.setCursor(0, 1);
+  LCD.print(distance);
+  delay(250);
+}
+
+void receivingData() {
+
+  LCD.clear();
   LCD.setCursor(0, 0);
   LCD.print("Topic: /lcd_msg");
   LCD.setCursor(0, 1);
   LCD.print("Received: ");
   LCD.setCursor(11, 1);
-  LCD.print(data.data);
+  LCD.print(displayNumber);
   delay(250);
-  
+
 }
 
-
-
-void readSerialMsg(){
-  
-}
 
 void pid() {
 
