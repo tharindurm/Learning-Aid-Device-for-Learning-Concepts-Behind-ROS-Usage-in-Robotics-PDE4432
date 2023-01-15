@@ -12,11 +12,11 @@ def talker():
     
     #print("Task number '1' published to topic taskNumber")
     while not rospy.is_shutdown():
-        for i in range(0,181,2):
+        for i in range(0,181,10):
             print("Publishing sevo angle",i,"to topic /servo_angle")
             servo_angle.publish(i)
             rate.sleep()
-        for i in range(0,181,2):
+        for i in range(0,181,10):
             print("publishing sevo angle",i,"to topic /servo_angle")
             servo_angle.publish(180-i)
             rate.sleep()

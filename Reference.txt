@@ -1,6 +1,0 @@
-type casting: https://forum.arduino.cc/t/cast-float-to-int-unexpected-results/510240/3
-
-maximum current draw: https://electronics.stackexchange.com/questions/67092/how-much-current-can-i-draw-from-the-arduinos-pins
-
-clear only a line in terminal: tput cup 11 0 && tput ed
-https://unix.stackexchange.com/questions/297502/clear-half-of-the-screen-from-the-command-line
